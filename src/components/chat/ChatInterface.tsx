@@ -36,14 +36,14 @@ export default function ChatInterface({ sessionId, onSessionCreate }: ChatInterf
   // Load last session id from localStorage on first mount
   useEffect(() => {
     if (!sessionId) {
-      const last = typeof window !== 'undefined' ? localStorage.getItem('lexa.currentSessionId') : null;
+      const last = localStorage.getItem('lexa.currentSessionId');
       if (last) setCurrentSessionId(last);
     }
   }, [sessionId]);
 
   useEffect(() => {
     if (currentSessionId) {
-      if (typeof window !== 'undefined') localStorage.setItem('lexa.currentSessionId', currentSessionId);
+      localStorage.setItem('lexa.currentSessionId', currentSessionId);
       loadMessages(currentSessionId);
     }
   }, [currentSessionId]);
@@ -102,7 +102,7 @@ export default function ChatInterface({ sessionId, onSessionCreate }: ChatInterf
       // Update session ID if this was the first message
       if (!currentSessionId) {
         setCurrentSessionId(data.session_id);
-        if (typeof window !== 'undefined') localStorage.setItem('lexa.currentSessionId', data.session_id);
+        localStorage.setItem('lexa.currentSessionId', data.session_id);
         onSessionCreate?.(data.session_id);
       }
 
@@ -152,12 +152,14 @@ export default function ChatInterface({ sessionId, onSessionCreate }: ChatInterf
 
   // Listen for global toggle requests from the Header burger
   useEffect(() => {
-    const toggle = () => setSidebarOpen((v) => !v);
-    // @ts-ignore - custom event name
-    window.addEventListener('lexa-toggle-sidebar', toggle as EventListener);
+    const toggle = (event: Event) => {
+      if (event.type === 'lexa-toggle-sidebar') {
+        setSidebarOpen((v) => !v);
+      }
+    };
+    window.addEventListener('lexa-toggle-sidebar', toggle);
     return () => {
-      // @ts-ignore
-      window.removeEventListener('lexa-toggle-sidebar', toggle as EventListener);
+      window.removeEventListener('lexa-toggle-sidebar', toggle);
     };
   }, []);
 
@@ -180,7 +182,7 @@ export default function ChatInterface({ sessionId, onSessionCreate }: ChatInterf
           setMessages([]);
           setSources([]);
           setCurrentSessionId(undefined);
-          if (typeof window !== 'undefined') localStorage.removeItem('lexa.currentSessionId');
+          localStorage.removeItem('lexa.currentSessionId');
         }}
       />
       {sidebarOpen && (
@@ -204,7 +206,7 @@ export default function ChatInterface({ sessionId, onSessionCreate }: ChatInterf
               setMessages([]);
               setSources([]);
               setCurrentSessionId(undefined);
-              if (typeof window !== 'undefined') localStorage.removeItem('lexa.currentSessionId');
+              localStorage.removeItem('lexa.currentSessionId');
             }}
           >
             <PenSquare className="h-5 w-5" />
