@@ -8,6 +8,8 @@ import { Plus, Search } from 'lucide-react';
 import { Document } from '@/types';
 import DocumentUploadDialog from './DocumentUploadDialog';
 import DocumentDetailsDialog from './DocumentDetailsDialog';
+import { formatDate } from '@/lib/utils/date';
+import { SEARCH_DEBOUNCE_MS, PAGE_SIZE_OPTIONS } from '@/lib/constants';
 
 export default function DocumentManagement() {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -23,7 +25,7 @@ export default function DocumentManagement() {
   const [selected, setSelected] = useState<Document | null>(null);
 
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedQuery(searchQuery.trim()), 300);
+    const t = setTimeout(() => setDebouncedQuery(searchQuery.trim()), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(t);
   }, [searchQuery]);
 
@@ -132,7 +134,7 @@ export default function DocumentManagement() {
                       <td className="px-4 py-2 capitalize">{doc.document_type}</td>
                       <td className="px-4 py-2">{doc.jurisdiction || '-'}</td>
                       <td className="px-4 py-2">{doc.reference_number || '-'}</td>
-                      <td className="px-4 py-2">{doc.enacted_date ? new Date(doc.enacted_date).toLocaleDateString() : '-'}</td>
+                      <td className="px-4 py-2">{formatDate(doc.enacted_date)}</td>
                     </tr>
                   ))
                 )}
@@ -155,7 +157,7 @@ export default function DocumentManagement() {
                   setPageSize(parseInt(e.target.value, 10));
                 }}
               >
-                {[10, 20, 50, 100].map((n) => (
+                {PAGE_SIZE_OPTIONS.map((n) => (
                   <option key={n} value={n}>{n}</option>
                 ))}
               </select>
@@ -169,7 +171,12 @@ export default function DocumentManagement() {
       </Card>
 
       {showUploadDialog && (
-        <DocumentUploadDialog onClose={() => { setShowUploadDialog(false); loadDocuments(); }} />
+        <DocumentUploadDialog
+          onClose={() => {
+            setShowUploadDialog(false);
+            loadDocuments();
+          }}
+        />
       )}
 
       {selected && (
@@ -177,15 +184,6 @@ export default function DocumentManagement() {
           document={selected}
           onClose={() => setSelected(null)}
           onDeleted={() => { setSelected(null); loadDocuments(); }}
-        />
-      )}
-
-      {showUploadDialog && (
-        <DocumentUploadDialog
-          onClose={() => {
-            setShowUploadDialog(false);
-            loadDocuments();
-          }}
         />
       )}
     </div>
