@@ -24,14 +24,14 @@ export function getRedisClient(): Redis | null {
       });
 
       redis.on('error', (error) => {
-        logger.error('Redis connection error', { error });
+        logger.error({ error }, 'Redis connection error');
       });
 
       redis.on('connect', () => {
         logger.info('Redis connected');
       });
     } catch (error) {
-      logger.error('Failed to initialize Redis', { error });
+      logger.error({ error }, 'Failed to initialize Redis');
       return null;
     }
   }
@@ -51,7 +51,7 @@ export async function getCache<T>(key: string): Promise<T | null> {
     if (!value) return null;
     return JSON.parse(value) as T;
   } catch (error) {
-    logger.error('Cache get error', { key, error });
+    logger.error({ key, error }, 'Cache get error');
     return null;
   }
 }
@@ -71,7 +71,7 @@ export async function setCache(key: string, value: unknown, ttl?: number): Promi
       await client.set(key, serialized);
     }
   } catch (error) {
-    logger.error('Cache set error', { key, error });
+    logger.error({ key, error }, 'Cache set error');
   }
 }
 
@@ -85,7 +85,7 @@ export async function delCache(key: string): Promise<void> {
   try {
     await client.del(key);
   } catch (error) {
-    logger.error('Cache delete error', { key, error });
+    logger.error({ key, error }, 'Cache delete error');
   }
 }
 
@@ -102,6 +102,6 @@ export async function clearCachePattern(pattern: string): Promise<void> {
       await client.del(...keys);
     }
   } catch (error) {
-    logger.error('Cache clear pattern error', { pattern, error });
+    logger.error({ pattern, error }, 'Cache clear pattern error');
   }
 }

@@ -223,7 +223,7 @@ export default function ChatInterface({ sessionId, onSessionCreate }: ChatInterf
                   <h2 className="text-2xl font-semibold">Welcome to Legal Research Assistant</h2>
                   <p className="text-muted-foreground max-w-md">
                     Ask me anything about legislation, regulations, and legal cases.
-                    I'll find relevant documents and provide comprehensive answers.
+                    I&apos;ll find relevant documents and provide comprehensive answers.
                   </p>
                 </div>
               </div>
