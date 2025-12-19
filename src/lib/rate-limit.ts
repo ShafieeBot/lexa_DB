@@ -71,7 +71,7 @@ export class RateLimiter {
         resetTime: now + this.config.windowMs,
       };
     } catch (error) {
-      logger.error('Rate limit check error (Redis)', { identifier, error });
+      logger.error({ identifier, error }, 'Rate limit check error (Redis)');
       // Fail open - allow request if rate limiting fails
       return {
         allowed: true,
@@ -127,7 +127,7 @@ export class RateLimiter {
       const result = await this.check(identifier);
 
       if (!result.allowed) {
-        logger.warn('Rate limit exceeded', { identifier });
+        logger.warn({ identifier }, 'Rate limit exceeded');
 
         return NextResponse.json(
           { error: ERROR_MESSAGES.RATE_LIMIT_EXCEEDED },

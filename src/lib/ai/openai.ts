@@ -39,10 +39,10 @@ export async function analyzeQuery(
   const startTime = Date.now();
 
   try {
-    logger.info('Analyzing query', {
+    logger.info({
       queryLength: query.length,
       documentCount: documents.length,
-    });
+    }, 'Analyzing query');
 
     const prompt = `You are a legal research assistant. Analyze the following user query and determine which documents from the provided list are most relevant.
 
@@ -92,10 +92,10 @@ Relevance guidance:
 
     const result = JSON.parse(content) as DocumentSearchResult;
 
-    logger.info('Query analysis completed', {
+    logger.info({
       duration: Date.now() - startTime,
       relevantDocs: result.documentIds.length,
-    });
+    }, 'Query analysis completed');
 
     return result;
   } catch (error) {
@@ -119,11 +119,11 @@ export async function generateAnswer(
   const startTime = Date.now();
 
   try {
-    logger.info('Generating answer', {
+    logger.info({
       queryLength: query.length,
       documentCount: documents.length,
       historyLength: conversationHistory.length,
-    });
+    }, 'Generating answer');
 
     const documentsContext = documents
       .map(
@@ -186,10 +186,10 @@ Please provide a comprehensive answer with citations to the relevant documents. 
       throw new Error('No content returned from OpenAI');
     }
 
-    logger.info('Answer generation completed', {
+    logger.info({
       duration: Date.now() - startTime,
       answerLength: answer.length,
-    });
+    }, 'Answer generation completed');
 
     return answer;
   } catch (error) {

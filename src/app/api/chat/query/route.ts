@@ -84,12 +84,12 @@ export async function POST(request: NextRequest) {
     const { query, session_id } = validation.data;
     let sessionId = session_id;
 
-    logger.info('Processing chat query', {
+    logger.info({
       userId: user.id,
       organizationId: profile.organization_id,
       queryLength: query.length,
       hasSession: !!sessionId,
-    });
+    }, 'Processing chat query');
 
     // Create or get chat session
     if (!sessionId) {
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!documents || documents.length === 0) {
-      logger.info('No documents available', { organizationId: profile.organization_id });
+      logger.info({ organizationId: profile.organization_id }, 'No documents available');
 
       return NextResponse.json({
         answer: ERROR_MESSAGES.NO_DOCUMENTS,
@@ -289,13 +289,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    logger.info('Query processed successfully', {
+    logger.info({
       userId: user.id,
       sessionId,
       messageId: assistantMessage.id,
       relevantDocsCount: relevantDocs.length,
       duration: Date.now() - startTime,
-    });
+    }, 'Query processed successfully');
 
     return NextResponse.json({
       answer,
