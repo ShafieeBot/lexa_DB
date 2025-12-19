@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     const validation = validateRequest(QuerySchema, body);
 
     if (!validation.success) {
-      logger.warn('Invalid query request', { error: validation.error });
+      logger.warn({ error: validation.error }, 'Invalid query request');
       return NextResponse.json(
         { error: validation.error },
         { status: HTTP_STATUS.BAD_REQUEST }
