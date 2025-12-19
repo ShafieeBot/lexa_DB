@@ -23,7 +23,9 @@ export class RateLimiter {
   /**
    * Check if request should be rate limited
    */
-  async check(identifier: string): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
+  async check(
+    identifier: string
+  ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
     const redis = getRedisClient();
 
     if (redis) {
@@ -81,7 +83,9 @@ export class RateLimiter {
     }
   }
 
-  private checkMemory(identifier: string): { allowed: boolean; remaining: number; resetTime: number } {
+  private checkMemory(
+    identifier: string
+  ): { allowed: boolean; remaining: number; resetTime: number } {
     const now = Date.now();
     const record = this.memoryStore.get(identifier);
 
@@ -117,12 +121,19 @@ export class RateLimiter {
    */
   middleware() {
     return async (request: NextRequest): Promise<NextResponse | null> => {
-      // Get identifier (IP address or user ID)
-      const identifier =
-        request.headers.get('x-forwarded-for') ||
-        request.headers.get('x-real-ip') ||
-        request.ip ||
-        'unknown';
+      // Get identifier (best-effort client IP under proxies)
+      const identifier = (() => {
+        const xff = request.headers.get('x-forwarded-for');
+        if (xff) return xff.split(',')[0].trim();
+
+        const realIp = request.headers.get('x-real-ip');
+        if (realIp) return realIp.trim();
+
+        const vercelIp = request.headers.get('x-vercel-forwarded-for');
+        if (vercelIp) return vercelIp.split(',')[0].trim();
+
+        return 'unknown';
+      })();
 
       const result = await this.check(identifier);
 
@@ -137,7 +148,9 @@ export class RateLimiter {
               'X-RateLimit-Limit': String(this.config.maxRequests),
               'X-RateLimit-Remaining': '0',
               'X-RateLimit-Reset': String(result.resetTime),
-              'Retry-After': String(Math.ceil((result.resetTime - Date.now()) / 1000)),
+              'Retry-After': String(
+                Math.ceil((result.resetTime - Date.now()) / 1000)
+              ),
             },
           }
         );
