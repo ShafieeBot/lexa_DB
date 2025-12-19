@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Document } from '@/types';
 import { useState } from 'react';
+import { createSupabaseClient } from '@/lib/supabase/client';
 
 interface Props {
   document: Document;
@@ -35,6 +36,32 @@ export default function DocumentDetailsDialog({ document, onClose, onDeleted }: 
     }
   };
 
+  const handleViewFile = async () => {
+    if (!document.file_url) return;
+    
+    try {
+      const supabase = createSupabaseClient();
+      
+      // Generate a signed URL that expires in 1 hour
+      const { data, error } = await supabase.storage
+        .from('documents')
+        .createSignedUrl(document.file_url, 3600);
+
+      if (error) {
+        console.error('Error generating signed URL:', error);
+        alert('Failed to load document. Please try again.');
+        return;
+      }
+
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Error opening document:', error);
+      alert('Failed to open document. Please try again.');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
@@ -54,7 +81,19 @@ export default function DocumentDetailsDialog({ document, onClose, onDeleted }: 
             <div><span className="text-muted-foreground">Jurisdiction:</span> {document.jurisdiction || '-'}</div>
             <div><span className="text-muted-foreground">Enacted:</span> {document.enacted_date ? new Date(document.enacted_date).toLocaleDateString() : '-'}</div>
             <div><span className="text-muted-foreground">Effective:</span> {document.effective_date ? new Date(document.effective_date).toLocaleDateString() : '-'}</div>
-            <div><span className="text-muted-foreground">File:</span> {document.file_url ? document.file_url : '—'}</div>
+            <div>
+              <span className="text-muted-foreground">File:</span>{' '}
+              {document.file_url ? (
+                <button
+                  onClick={handleViewFile}
+                  className="text-primary hover:underline cursor-pointer"
+                >
+                  View File
+                </button>
+              ) : (
+                '—'
+              )}
+            </div>
           </div>
           {document.summary && (
             <div>
