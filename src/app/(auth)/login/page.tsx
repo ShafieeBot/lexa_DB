@@ -85,7 +85,7 @@ export default function LoginPage() {
             </Button>
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
-            Don't have an account? Contact your organization administrator.
+            Don&apos;t have an account? Contact your organization administrator.
           </div>
         </CardContent>
       </Card>

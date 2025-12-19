@@ -31,7 +31,8 @@ export default function DocumentManagement() {
 
   useEffect(() => {
     loadDocuments();
-  }, [page, pageSize, debouncedQuery]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize, debouncedQuery, typeFilter, jurisdictionFilter]);
 
   const loadDocuments = async () => {
     try {
